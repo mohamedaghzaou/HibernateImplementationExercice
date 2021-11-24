@@ -10,8 +10,6 @@ import javax.persistence.Table;
 @Table
 public class Client {
 	
-
-	
 	@Id
 	@GeneratedValue
 	private int ID;
@@ -60,11 +58,16 @@ public class Client {
 	public void setADRESSE(String aDRESSE) {
 		ADRESSE = aDRESSE;
 	}
-	public String getTE() {
+	public String getTEL() {
 		return TEL;
 	}
-	public void setTE(String tE) {
+	public void setTEL(String tE) {
 		TEL = tE;
+	}
+	@Override
+	public String toString() {
+		return "Client [ID=" + ID + ", NOM=" + NOM + ", PRENOM=" + PRENOM + ", ADRESSE=" + ADRESSE + ", TEL=" + TEL
+				+ "]";
 	}
 	
 	
