@@ -22,7 +22,11 @@ public class Main {
 			System.out.println(c1);
 		}
 
-		
+		//s.save(c);
+		//Client c = new Client(1,"nnn","nnn","nn","nn");
+		//s.update(c);
+
+
 		t.commit();
 		s.close();
 
