@@ -13,24 +13,23 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table
+@Table(name = "produit")
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class Client {
+public class Product {
 
 	@Id
 	@GeneratedValue
-	private int ID;
-	@Column
-	private String NOM;
-	// @Column
-	private String PRENOM;
-	@Column
-	private String ADRESSE;
-	@Column
-	private String TEL;
+	private int id;
+
+	private String nom;
+	private String famille;
+
+	@Column(name = "pirce")
+	private double price;
+	private double sellprice;
 
 }

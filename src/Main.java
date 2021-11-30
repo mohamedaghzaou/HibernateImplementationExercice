@@ -6,30 +6,15 @@ import org.hibernate.Transaction;
 
 import com.Exercice.Hibernate.hibernateUtils;
 import com.Exercice.model.Client;
+import com.Exercice.model.Product;
+import com.Exerice.Sercices.Servicies;
 
 public class Main {
 
 	public static void main(String[] args) {
-		Session s = hibernateUtils.getSessionFactory().getCurrentSession(); 
 
-		Client c = new Client(1,"mmm","mmmm","mmmm","mmmm");
-
-		Transaction t= s.beginTransaction();
-		
-		List<Client> clients = s.createQuery("from Client").list();
-		
-		for(Client c1 : clients) {
-			System.out.println(c1);
-		}
-
-		//s.save(c);
-		//Client c = new Client(1,"nnn","nnn","nn","nn");
-		//s.update(c);
-
-
-		t.commit();
-		s.close();
-
+		Product a = Servicies.getInstance().findById(1);
+		System.out.println(a);
 
 	}
 

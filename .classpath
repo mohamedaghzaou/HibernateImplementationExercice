@@ -7,6 +7,8 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/sqlConnector"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Myhibernate"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/HibenateJar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Lombok"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
