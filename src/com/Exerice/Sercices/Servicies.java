@@ -2,8 +2,18 @@ package com.Exerice.Sercices;
 
 import java.util.List;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaDelete;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.CriteriaUpdate;
+import javax.persistence.criteria.Root;
+
+import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.criterion.Restrictions;
+import org.hibernate.query.Query;
+
 import com.Exercice.Hibernate.hibernateUtils;
 import com.Exercice.model.Product;
 
@@ -25,47 +35,56 @@ public class Servicies {
 
 	public Product findById(int id) {
 		session.beginTransaction();
-		Product Products = session.get(Product.class, id);
+		Criteria c = session.createCriteria(Product.class);
+		c.add(Restrictions.idEq(id));
+		Product Product = (Product) c.uniqueResult();
 		session.close();
-
-		return Products;
+		return Product;
 
 	}
 
 	public List<Product> findAll() {
 		session.beginTransaction();
-		List<Product> Products = session.createQuery("from Product").getResultList();
+		Criteria c = session.createCriteria(Product.class);
+		List<Product> Products = c.list();
 		session.close();
-
 		return Products;
 
 	}
 
 	public List<Product> findBySellPrice(double sellprice) {
-		Session s = hibernateUtils.getSessionFactory().getCurrentSession();
-		s.beginTransaction();
-		List<Product> Products = s.createQuery("from Product p where p.sellprice > :sellprice and f.nom like 'A%''")
-				.setParameter("sellprice", sellprice).list();
-		s.close();
-
+		
+		session.beginTransaction();
+		Criteria c = session.createCriteria(Product.class);
+		c.add(Restrictions.gt("sellprice", sellprice));
+		c.add(Restrictions.like("nom", "A%"));
+		List<Product> Products=c.list();
+		session.close();
+		
 		return Products;
 
 	}
 
 	public List<Product> findProductEntre100Et1000() {
 		session.beginTransaction();
-		List<Product> Products = session.createQuery("from Product p where p.price between 1000 and 100000000").list();
-
+		Criteria c = session.createCriteria(Product.class);
+		c.add(Restrictions.between("price", 100, 1000));
+		List<Product> Products=c.list();
+		
 		session.close();
-
 		return Products;
-
 	}
 
 	public List<Object[]> findPriceByFamily() {
 		session.beginTransaction();
-		List<Object[]> Products = session
-				.createQuery("select famille, sum(p.price), sum(p.sellprice), from Product p group by famille").list();
+		 CriteriaBuilder builder = session.getCriteriaBuilder();
+		CriteriaQuery<Object[]> c = builder.createQuery(Object[].class);
+        Root<Product> root = c.from(Product.class);
+        c.multiselect(root.get("famille"), builder.sum(root.get("price")),builder.sum(root.get("sellprice")));
+        c.groupBy(root.get("famille"));
+        Query<Object[]> query = session.createQuery(c);
+		
+		List<Object[]> Products =query.getResultList();
 
 		session.close();
 
@@ -73,18 +92,20 @@ public class Servicies {
 	}
 
 	public List<Product> findFamilyProduct(String family) {
-		Session s = hibernateUtils.getSessionFactory().getCurrentSession();
-		Transaction t = s.beginTransaction();
-		List<Product> Products = s.createQuery("from Product p where  p.famille like :family")
-				.setParameter("family", family).getResultList();
-
-		t.commit();
-		s.close();
+		session.beginTransaction();
+		Criteria c = session.createCriteria(Product.class);
+		c.add(Restrictions.like("famille", family));
+		List<Product> Products=c.list();
+		session.close();
 
 		return Products;
 	}
 
 	public void save(Product p) {
+		
+		session.beginTransaction();
+		session.close();
+		
 		Session s = hibernateUtils.getSessionFactory().getCurrentSession();
 		Transaction t = s.beginTransaction();
 
@@ -96,35 +117,40 @@ public class Servicies {
 	}
 
 	public int updateProductsByFamily(String family) {
-		session.beginTransaction();
+		
+		List<Product> products = findFamilyProduct(family);
+		 Session session = hibernateUtils.getSessionFactory().getCurrentSession();
+		 session.beginTransaction();
+		 CriteriaBuilder builder = session.getCriteriaBuilder();
+		 CriteriaUpdate<Product> criteriaUpdate = null;
+		 Root<Product> root = null;
 
-		int a = session.createQuery(
-				"update Product set price = price + price *  0.1,  sellprice = sellprice + sellprice * 0.1  where  famille like :family")
-				.setParameter("family", family).executeUpdate();
+		 for (Product product : products) {
+			 criteriaUpdate = builder.createCriteriaUpdate(Product.class);
+			  root = criteriaUpdate.from(Product.class);
+			 criteriaUpdate.set("price", product.getPrice()* 1.1 );
+			 criteriaUpdate.set("sellprice", product.getSellprice()* 1.1 );
+			 criteriaUpdate.where(builder.equal(root.get("id"), product.getId()));
+			 session.createQuery(criteriaUpdate).executeUpdate();
 
-		session.getTransaction().commit();
+
+		}
 		session.close();
-		return a;
+		return products.size();
 
 	}
 
 	public int deleteProducts() {
 		session.beginTransaction();
-		int a = session.createQuery("delete from  Product where nom like 'm%'").executeUpdate();
-		session.getTransaction().commit();
-		session.close();
-		return a;
+		 CriteriaBuilder builder = session.getCriteriaBuilder();
+		 CriteriaDelete<Product> criteriaDelete =  builder.createCriteriaDelete(Product.class);
+		 Root<Product> root = criteriaDelete.from(Product.class);
+		 
+		 criteriaDelete.where(builder.like(root.get("nom"), "m%"));
+		 int a  = session.createQuery(criteriaDelete).executeUpdate();
+		 session.getTransaction().commit();
+		 session.close();
+		 return a;
 
-	}
-
-	public long NumberOfProducts() {
-		session.beginTransaction();
-		// long a = (long) s.createQuery("select count(p) from Product
-		// p").uniqueResult();
-		long a = (long) session.createQuery("select count(p) from Product p").getSingleResult();
-		session.close();
-		return a;
-
-	}
-
+	}	
 }

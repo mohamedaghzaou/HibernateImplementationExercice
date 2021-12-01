@@ -13,8 +13,9 @@ public class Main {
 
 	public static void main(String[] args) {
 
-		Product a = Servicies.getInstance().findById(1);
+		int a = Servicies.getInstance().deleteProducts();
 		System.out.println(a);
+		
 
 	}
 
